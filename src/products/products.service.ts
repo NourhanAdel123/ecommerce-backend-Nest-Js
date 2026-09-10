@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto.js';
 import { updateProductDto } from './dtos/update-product.dto.js';
+import { UsersService } from '../users/usres.service.js';
 
 type ProductType = {
   id: number;
