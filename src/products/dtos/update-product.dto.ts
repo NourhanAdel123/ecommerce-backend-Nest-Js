@@ -10,4 +10,14 @@ export class updateProductDto {
   @IsNotEmpty()
   @IsOptional()
   price?: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  image?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @IsOptional()
+  description?: string;
 }
