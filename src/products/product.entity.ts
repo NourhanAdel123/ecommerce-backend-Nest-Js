@@ -1,4 +1,13 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  type Relation,
+} from 'typeorm';
+import { Review } from '../reviews/reviews.entity.js';
+import { User } from '../users/user.entity.js';
 
 @Entity({ name: 'products' })
 export class Product {
@@ -16,4 +25,10 @@ export class Product {
   createdAt: Date;
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updatedAt: Date;
+
+  @OneToMany(() => Review, (review) => review.product)
+  reviews: Relation<Review>[];
+
+  @ManyToOne(() => User, (user) => user.products)
+  user: Relation<User>;
 }
