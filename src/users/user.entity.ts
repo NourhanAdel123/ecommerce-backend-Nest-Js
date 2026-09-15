@@ -24,7 +24,7 @@ export class User {
   password: string;
 
   @Column({ type: 'enum', enum: UserType, default: UserType.NORMAL_USER })
-  userType: string;
+  userType: UserType;
 
   @Column({ default: false })
   isVerfied: boolean;
