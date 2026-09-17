@@ -8,6 +8,7 @@ import {
 import { Product } from '../products/product.entity.js';
 import { Review } from '../reviews/reviews.entity.js';
 import { UserType } from '../utils/enums.js';
+import { Exclude } from 'class-transformer';
 
 @Entity({ name: 'users' })
 export class User {
@@ -21,6 +22,7 @@ export class User {
   email: string;
 
   @Column()
+  @Exclude()
   password: string;
 
   @Column({ type: 'enum', enum: UserType, default: UserType.NORMAL_USER })
