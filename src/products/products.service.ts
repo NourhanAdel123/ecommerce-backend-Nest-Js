@@ -25,14 +25,24 @@ export class ProductService {
     return this.ProductRepository.save(product);
   }
 
-  public getAll(name?: string, minPrice?: string, maxPrice?: string) {
+  public getAll(
+    name?: string,
+    minPrice?: string,
+    maxPrice?: string,
+    pageNumber: number = 1,
+    productPerPage: number = 10,
+  ) {
     const filters = {
       ...(name ? { name: Like(`%${name.toLowerCase()}%`) } : {}),
       ...(minPrice && maxPrice
         ? { price: Between(parseInt(minPrice), parseInt(maxPrice)) }
         : {}),
     };
-    return this.ProductRepository.find({ where: filters });
+    return this.ProductRepository.find({
+      where: filters,
+      skip: (pageNumber - 1) * productPerPage,
+      take: productPerPage,
+    });
   }
 
   public async getOneBy(id: string) {

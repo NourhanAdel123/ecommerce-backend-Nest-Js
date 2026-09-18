@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   ParseUUIDPipe,
   Post,
   Put,
@@ -38,8 +39,16 @@ export class ProductsController {
     @Query('name') name: string,
     @Query('minPrice') minPrice: string,
     @Query('maxPrice') maxPrice: string,
+    @Query('pageNumber', ParseIntPipe) pageNumber: number,
+    @Query('productPerPage', ParseIntPipe) productPerPage: number,
   ) {
-    return this.ProductService.getAll(name, minPrice, maxPrice);
+    return this.ProductService.getAll(
+      name,
+      minPrice,
+      maxPrice,
+      pageNumber,
+      productPerPage,
+    );
   }
 
   @Get(':id')
