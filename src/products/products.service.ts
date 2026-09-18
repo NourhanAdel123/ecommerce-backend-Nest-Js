@@ -3,7 +3,7 @@ import { CreateProductDto } from './dtos/create-product.dto.js';
 import { updateProductDto } from './dtos/update-product.dto.js';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity.js';
-import { Repository } from 'typeorm';
+import { Between, Like, Repository } from 'typeorm';
 import { UsersService } from '../users/usres.service.js';
 import { dot } from 'node:test/reporters';
 
@@ -25,8 +25,14 @@ export class ProductService {
     return this.ProductRepository.save(product);
   }
 
-  public getAll() {
-    return this.ProductRepository.find();
+  public getAll(name?: string, minPrice?: string, maxPrice?: string) {
+    const filters = {
+      ...(name ? { name: Like(`%${name.toLowerCase()}%`) } : {}),
+      ...(minPrice && maxPrice
+        ? { price: Between(parseInt(minPrice), parseInt(maxPrice)) }
+        : {}),
+    };
+    return this.ProductRepository.find({ where: filters });
   }
 
   public async getOneBy(id: string) {

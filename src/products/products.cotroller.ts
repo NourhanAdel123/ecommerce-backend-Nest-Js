@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { CreateProductDto } from './dtos/create-product.dto.js';
@@ -33,8 +34,12 @@ export class ProductsController {
   }
 
   @Get()
-  public getProducts() {
-    return this.ProductService.getAll();
+  public getProducts(
+    @Query('name') name: string,
+    @Query('minPrice') minPrice: string,
+    @Query('maxPrice') maxPrice: string,
+  ) {
+    return this.ProductService.getAll(name, minPrice, maxPrice);
   }
 
   @Get(':id')
