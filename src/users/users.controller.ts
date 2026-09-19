@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -6,10 +7,13 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './usres.service.js';
 import { RegisterDto } from './dtos/register.dto.js';
@@ -21,6 +25,8 @@ import { Roles } from './decorators/user-role.decorator.js';
 import { UserType } from '../utils/enums.js';
 import { AuthRolesGuard } from './guards/auth-roles.guard.js';
 import { UpdateUserDto } from './dtos/update-user.dto.js';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Controller('/api/users')
 export class UsersController {
@@ -59,13 +65,53 @@ export class UsersController {
     return this.UsersService.updatUser(payload.id, body);
   }
 
+  @Delete(['remove-profile-image', 'profile-image'])
+  @Roles(UserType.ADMIN, UserType.NORMAL_USER)
+  @UseGuards(AuthRolesGuard)
+  public deleteProfileImage(@CurrentUser() payload: types.JWTPayloadType) {
+    return this.UsersService.removeProfileImage(payload.id);
+  }
+
   @Delete(':id')
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
   public delete(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() payload: types.JWTPayloadType,
   ) {
     return this.UsersService.delteUser(id, payload);
+  }
+
+  @Post('profile-image')
+  @Roles(UserType.ADMIN, UserType.NORMAL_USER)
+  @UseGuards(AuthRolesGuard)
+  @UseInterceptors(
+    FileInterceptor('profile-image', {
+      storage: diskStorage({
+        destination: './images/users',
+        filename: (req, file, cb) => {
+          const prefix = `${Date.now()}-${Math.round(Math.random() * 1000000)}`;
+
+          const filename = `${prefix}-${file.originalname}`;
+
+          cb(null, filename);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype.startsWith('image')) {
+          cb(null, true);
+        } else {
+          cb(new BadRequestException('unsupported file foramat'), false);
+        }
+      },
+      limits: { fileSize: 1024 * 1024 * 2 },
+    }),
+  )
+  public uploadUserProfile(
+    @UploadedFile() file: Express.Multer.File,
+    @CurrentUser() payload: types.JWTPayloadType,
+  ) {
+    if (!file) throw new BadRequestException('image is required');
+    return this.UsersService.uploadProfileImage(payload.id, file.filename);
   }
 }

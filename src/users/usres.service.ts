@@ -15,6 +15,8 @@ import { promises } from 'dns';
 import { UpdateUserDto } from './dtos/update-user.dto.js';
 import { ExceptionHandler } from '@nestjs/core/errors/exception-handler.js';
 import { AuthProvider } from './auth.provider.js';
+import { join } from 'path';
+import { unlinkSync, existsSync } from 'fs';
 
 @Injectable()
 export class UsersService {
@@ -61,6 +63,34 @@ export class UsersService {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) throw new BadRequestException('user not found');
     return user;
+  }
+
+  public async uploadProfileImage(userid: string, imgeName: string) {
+    const user = await this.getCurrentUser(userid);
+    if (user.profileImage) {
+      await this.removeProfileImage(userid);
+      user.profileImage = imgeName;
+    } else {
+      user.profileImage = imgeName;
+    }
+    return this.userRepository.save(user);
+  }
+
+  public async removeProfileImage(userId: string) {
+    const user = await this.getCurrentUser(userId);
+    if (!user.profileImage)
+      throw new BadRequestException('there is no image to remove');
+    const imagePath = join(
+      process.cwd(),
+      `./images/users/${user.profileImage}`,
+    );
+    if (existsSync(imagePath)) {
+      unlinkSync(imagePath);
+    }
+
+    user.profileImage = null;
+
+    return this.userRepository.save(user);
   }
 
   public async getAll(): Promise<User[]> {

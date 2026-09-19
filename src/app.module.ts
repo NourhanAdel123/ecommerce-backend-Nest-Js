@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ProductsModule } from './products/products.module.js';
 import { UserModule } from './users/users.module.js';
 import { ReviewModule } from './reviews/reviews.module.js';
+import { UploadsModule } from './uploads/uploads.module.js';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './products/product.entity.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -18,6 +19,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
     ProductsModule,
     UserModule,
     ReviewModule,
+    UploadsModule,
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
@@ -30,10 +32,6 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
         entities: [Product, Review, User],
         synchronize: process.env.NODE_ENV !== 'production',
       }),
-    }),
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: `./.env.${process.env.NODE_ENV}`,
     }),
   ],
   providers: [

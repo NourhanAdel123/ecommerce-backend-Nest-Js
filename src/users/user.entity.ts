@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  IsNull,
   OneToMany,
   PrimaryGeneratedColumn,
   type Relation,
@@ -24,6 +25,9 @@ export class User {
   @Column()
   @Exclude()
   password: string;
+
+  @Column({ type: 'varchar', nullable: true, default: null })
+  profileImage: string | null;
 
   @Column({ type: 'enum', enum: UserType, default: UserType.NORMAL_USER })
   userType: UserType;
