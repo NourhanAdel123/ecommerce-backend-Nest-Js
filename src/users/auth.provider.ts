@@ -8,12 +8,14 @@ import bcrypt from 'bcryptjs';
 import { LoginDto } from './dtos/login.dto.js';
 import { accessTokenType, JWTPayloadType } from '../utils/types.js';
 import { JwtService } from '@nestjs/jwt';
+import { MailService } from '../mail/mail.service.js';
 
 @Injectable()
 export class AuthProvider {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) {}
   public async register(registerDto: RegisterDto): Promise<accessTokenType> {
     const { username, email, password } = registerDto;
@@ -52,6 +54,7 @@ export class AuthProvider {
       id: user.id,
       userType: user.userType,
     });
+    this.mailService.sendLoginEmail(user); // fire-and-forget, non-blocking
     return { accessToken };
   }
   private generateJwtToken(payload: JWTPayloadType): Promise<string> {
