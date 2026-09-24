@@ -27,6 +27,8 @@ import { AuthRolesGuard } from './guards/auth-roles.guard.js';
 import { UpdateUserDto } from './dtos/update-user.dto.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { forgotPasswordDto } from './dtos/forgot-password.dto.js';
+import { ResetPasswordDto } from './dtos/reset-password.dto.js';
 
 @Controller('/api/users')
 export class UsersController {
@@ -46,6 +48,26 @@ export class UsersController {
   @UseGuards(AuthGuard)
   public getCurrentUser(@CurrentUser() payload: types.JWTPayloadType) {
     return this.UsersService.getCurrentUser(payload.id);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  public forgotPassword(@Body() body: forgotPasswordDto) {
+    return this.UsersService.sendResetPasswordLink(body);
+  }
+
+  @Get('reset-password/:userId/:token')
+  @HttpCode(HttpStatus.OK)
+  public getResetPasswordLink(
+    @Param('userId', ParseUUIDPipe) userId: string,
+    @Param('token') token: string,
+  ) {
+    return this.UsersService.getResetPasswordLink(userId, token);
+  }
+
+  @Post('reset-password')
+  public resetPassword(@Body() body: ResetPasswordDto) {
+    return this.UsersService.resetPassword(body);
   }
 
   @Get()
@@ -113,5 +135,12 @@ export class UsersController {
   ) {
     if (!file) throw new BadRequestException('image is required');
     return this.UsersService.uploadProfileImage(payload.id, file.filename);
+  }
+  @Get('verify-email/:id/:token')
+  public verifyEmail(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('token') token: string,
+  ) {
+    return this.UsersService.verifyEmail(id, token);
   }
 }

@@ -17,6 +17,8 @@ import { ExceptionHandler } from '@nestjs/core/errors/exception-handler.js';
 import { AuthProvider } from './auth.provider.js';
 import { join } from 'path';
 import { unlinkSync, existsSync } from 'fs';
+import { ResetPasswordDto } from './dtos/reset-password.dto.js';
+import { forgotPasswordDto } from './dtos/forgot-password.dto.js';
 
 @Injectable()
 export class UsersService {
@@ -29,8 +31,22 @@ export class UsersService {
     return this.authProvider.register(registerDto);
   }
 
-  public async login(loginDto: LoginDto): Promise<accessTokenType> {
+  public async login(
+    loginDto: LoginDto,
+  ): Promise<accessTokenType | { message: string }> {
     return this.authProvider.login(loginDto);
+  }
+
+  public sendResetPasswordLink(forgotPasswordDto: forgotPasswordDto) {
+    return this.authProvider.sendResetPasswordLink(forgotPasswordDto.email);
+  }
+
+  public getResetPasswordLink(userId: string, resetPasswordToken: string) {
+    return this.authProvider.getResetPasswordLink(userId, resetPasswordToken);
+  }
+
+  public resetPassword(resetPasswordDto: ResetPasswordDto) {
+    return this.authProvider.resetPassword(resetPasswordDto);
   }
 
   public async updatUser(id: string, updateUserDto: UpdateUserDto) {
@@ -91,6 +107,19 @@ export class UsersService {
     user.profileImage = null;
 
     return this.userRepository.save(user);
+  }
+
+  public async verifyEmail(userId: string, token: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new BadRequestException('user not found');
+    if (user.verificationToken !== token)
+      throw new BadRequestException('invalid verification token');
+    if (user.isVerfied)
+      throw new BadRequestException('your email has been verified already');
+    user.isVerfied = true;
+    user.verificationToken = null;
+    await this.userRepository.save(user);
+    return { message: 'your email has been verified successfully' };
   }
 
   public async getAll(): Promise<User[]> {

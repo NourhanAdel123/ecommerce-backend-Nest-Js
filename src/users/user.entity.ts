@@ -35,6 +35,12 @@ export class User {
   @Column({ default: false })
   isVerfied: boolean;
 
+  @Column({ type: 'varchar', nullable: true })
+  verificationToken: string | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  resetPasswordToken: string | null;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

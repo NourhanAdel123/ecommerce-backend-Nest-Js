@@ -15,8 +15,37 @@ export class MailService {
         html: `<h1>hiiii ${user.email}</h1>`,
       });
     } catch (error) {
-      // Log but never re-throw — email failure must not break the login response
       console.error('Failed to send login email:', error);
+    }
+  }
+
+  public async sendVerificationEmail(user: User, token: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: user.email,
+        from: 'abc@gmail.com',
+        subject: 'verification email',
+        html: `<h1>hiiii ${user.email} ,click on this link to verify your email</h1>
+        <a href="http://localhost:5000/api/users/verify-email/${user.id}/${token}">Verify your email</a>
+        `,
+      });
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+    }
+  }
+
+  public async sendResetPasswordEmail(user: User, token: string) {
+    try {
+      await this.mailerService.sendMail({
+        to: user.email,
+        from: 'abc@gmail.com',
+        subject: 'reset password email',
+        html: `<h1>hiiii ${user.email} ,click on this link to reset your password</h1>
+        <a href="http://localhost:3000/reset-password/${user.id}/${token}">reset your password</a>
+        `,
+      });
+    } catch (error) {
+      console.error('Failed to send reset password email:', error);
     }
   }
 }
