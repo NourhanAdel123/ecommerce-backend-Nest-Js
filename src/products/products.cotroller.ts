@@ -19,6 +19,7 @@ import { Roles } from '../users/decorators/user-role.decorator.js';
 import { UserType } from '../utils/enums.js';
 import { CurrentUser } from '../users/decorators/current-user.decorator.js';
 import type { JWTPayloadType } from '../utils/types.js';
+import { ApiQuery, ApiSecurity } from '@nestjs/swagger';
 
 @Controller('/api/products')
 export class ProductsController {
@@ -27,6 +28,7 @@ export class ProductsController {
   @Post()
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
+  @ApiSecurity('bearer')
   public creatProduct(
     @Body() body: CreateProductDto,
     @CurrentUser() payload: JWTPayloadType,
@@ -35,12 +37,39 @@ export class ProductsController {
   }
 
   @Get()
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'minPrice',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'maxPrice',
+    required: false,
+    type: String,
+  })
+  @ApiQuery({
+    name: 'pageNumber',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'productPerPage',
+    required: false,
+    type: Number,
+  })
   public getProducts(
-    @Query('name') name: string,
-    @Query('minPrice') minPrice: string,
-    @Query('maxPrice') maxPrice: string,
-    @Query('pageNumber', ParseIntPipe) pageNumber: number,
-    @Query('productPerPage', ParseIntPipe) productPerPage: number,
+    @Query('name') name?: string,
+    @Query('minPrice') minPrice?: string,
+    @Query('maxPrice') maxPrice?: string,
+    @Query('pageNumber', new ParseIntPipe({ optional: true }))
+    pageNumber?: number,
+    @Query('productPerPage', new ParseIntPipe({ optional: true }))
+    productPerPage?: number,
   ) {
     return this.ProductService.getAll(
       name,
@@ -59,6 +88,7 @@ export class ProductsController {
   @Put(':id')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
+  @ApiSecurity('bearer')
   public UpdateProduct(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() body: updateProductDto,
@@ -69,6 +99,7 @@ export class ProductsController {
   @Delete(':id')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN)
+  @ApiSecurity('bearer')
   public DeleteProduct(@Param('id', ParseUUIDPipe) id: string) {
     return this.ProductService.Delete(id);
   }

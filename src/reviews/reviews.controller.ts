@@ -18,6 +18,7 @@ import { Roles } from '../users/decorators/user-role.decorator.js';
 import { UserType } from '../utils/enums.js';
 import { CurrentUser } from '../users/decorators/current-user.decorator.js';
 import { UpdateReviewDto } from './dtos/update-review.dto.js';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('/api/reviews')
 export class ReviewsController {
@@ -29,6 +30,7 @@ export class ReviewsController {
   @Post(':productId')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
+  @ApiSecurity('bearer')
   public creatReview(
     @Body() body: CreateReviewDto,
     @CurrentUser() payload: JWTPayloadType,
@@ -45,6 +47,7 @@ export class ReviewsController {
   @Put(':id')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
+  @ApiSecurity('bearer')
   public updateReview(
     @Body() body: UpdateReviewDto,
     @CurrentUser() payload: JWTPayloadType,
@@ -56,6 +59,7 @@ export class ReviewsController {
   @Delete(':id')
   @UseGuards(AuthRolesGuard)
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
+  @ApiSecurity('bearer')
   public deleteReview(
     @Param('id') id: string,
     @CurrentUser() payload: JWTPayloadType,

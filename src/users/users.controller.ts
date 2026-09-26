@@ -29,6 +29,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { forgotPasswordDto } from './dtos/forgot-password.dto.js';
 import { ResetPasswordDto } from './dtos/reset-password.dto.js';
+import { ApiSecurity } from '@nestjs/swagger';
 
 @Controller('/api/users')
 export class UsersController {
@@ -46,6 +47,7 @@ export class UsersController {
 
   @Get('current-user')
   @UseGuards(AuthGuard)
+  @ApiSecurity('bearer')
   public getCurrentUser(@CurrentUser() payload: types.JWTPayloadType) {
     return this.UsersService.getCurrentUser(payload.id);
   }
@@ -73,6 +75,7 @@ export class UsersController {
   @Get()
   @Roles(UserType.ADMIN)
   @UseGuards(AuthRolesGuard)
+  @ApiSecurity('bearer')
   public getAllUsers() {
     return this.UsersService.getAll();
   }
@@ -80,6 +83,7 @@ export class UsersController {
   @Put()
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
+  @ApiSecurity('bearer')
   public updateUser(
     @CurrentUser() payload: types.JWTPayloadType,
     @Body() body: UpdateUserDto,
@@ -90,6 +94,7 @@ export class UsersController {
   @Delete(['remove-profile-image', 'profile-image'])
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
+  @ApiSecurity('bearer')
   public deleteProfileImage(@CurrentUser() payload: types.JWTPayloadType) {
     return this.UsersService.removeProfileImage(payload.id);
   }
@@ -97,6 +102,7 @@ export class UsersController {
   @Delete(':id')
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
+  @ApiSecurity('bearer')
   public delete(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser() payload: types.JWTPayloadType,
@@ -107,6 +113,7 @@ export class UsersController {
   @Post('profile-image')
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
+  @ApiSecurity('bearer')
   @UseInterceptors(
     FileInterceptor('profile-image', {
       storage: diskStorage({
