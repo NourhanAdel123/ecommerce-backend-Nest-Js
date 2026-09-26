@@ -13,6 +13,8 @@ import {
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import { diskStorage } from 'multer';
+import { ApiBody, ApiConsumes } from '@nestjs/swagger';
+import { FilesUploadDto } from './dto/files-upload.dto.js';
 
 @Controller('/api/uploads')
 export class UploadsController {
@@ -28,6 +30,10 @@ export class UploadsController {
 
   @Post('multiple-files')
   @UseInterceptors(FilesInterceptor('files'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: FilesUploadDto,
+  })
   public uploadMutipleFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {

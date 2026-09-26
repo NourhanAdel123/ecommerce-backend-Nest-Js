@@ -29,7 +29,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { forgotPasswordDto } from './dtos/forgot-password.dto.js';
 import { ResetPasswordDto } from './dtos/reset-password.dto.js';
-import { ApiSecurity } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiSecurity } from '@nestjs/swagger';
+import { ImageUploadDto } from './dtos/image-upload.dto.js';
 
 @Controller('/api/users')
 export class UsersController {
@@ -114,6 +115,11 @@ export class UsersController {
   @Roles(UserType.ADMIN, UserType.NORMAL_USER)
   @UseGuards(AuthRolesGuard)
   @ApiSecurity('bearer')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: ImageUploadDto,
+    description: 'profile image',
+  })
   @UseInterceptors(
     FileInterceptor('profile-image', {
       storage: diskStorage({
