@@ -14,11 +14,10 @@ import { Product } from './products/product.entity.js';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Review } from './reviews/reviews.entity.js';
 import { User } from './users/user.entity.js';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { MailModule } from './mail/mail.module.js';
 import { LoggerMiddleware } from './utils/middleware/logger.middleware.js';
-import path from 'path';
-
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -43,11 +42,21 @@ import path from 'path';
         synchronize: process.env.NODE_ENV !== 'production',
       }),
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 10000,
+        limit: 3,
+      },
+    ]),
   ],
   providers: [
     {
       provide: APP_INTERCEPTOR,
       useClass: ClassSerializerInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
